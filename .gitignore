@@ -1,0 +1,6 @@
+.vscode/
+work/
+transcript 
+vsim.wlf
+waveform.vcd
+obj_dir/
