@@ -1,5 +1,9 @@
 # Makefile for Verilog simulation using VSIM
 
+# Define Verilator variables
+VERILATOR = verilator
+VERILATOR_FLAGS = -Wall --cc
+
 # Define VSIM variables
 VSIM = vsim
 VSIM_FLAGS = -R
@@ -7,7 +11,7 @@ VSIM_FLAGS = -R
 # Define simulation variables
 SIM_BINARY = sim_bin
 
-SIM_SRC_VSIM = src/scp.sv \
+SIM_SRC = src/scp.sv \
 					src/datapath.sv \
 					src/controller.sv \
 					src/alu.sv \
@@ -27,6 +31,7 @@ COMP_OPTS_SV := --incr --relax
 TB_TOP = scp_tb
 MODULE = scp_tb
 
+DEFINES_VER:= src/defines/verilator.svh
 
 # Default target
 .PHONY: all
@@ -49,9 +54,21 @@ sim:
 ifdef TOOL
 ifeq ($(TOOL),vsim)
 	@echo "Running VSIM simulation..."
-	vlog $(SIM_SRC_VSIM)
+	vlog $(SIM_SRC)
 	vsim scp_tb
-
+else ifeq ($(TOOL),verilator)
+	@echo "Running Verilator simulation..."
+	verilator --trace -cc $(SIM_SRC) $(DEFINES_VER) \
+	  	  --top-module $(MODULE)     \
+		  -Wno-DECLFILENAME 		 \
+		  -Wno-WIDTH 				 \
+		  -Wno-REDEFMACRO			 \
+		  -Wno-INITIALDLY			 \
+		  --exe ./test/$(TB_TOP).cpp \
+		  --timing
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+	./obj_dir/V$(MODULE)
+	gtkwave waveform.vcd
 else
 	@echo "Invalid TOOL specified. Please use 'vsim' or 'verilator'."
 endif

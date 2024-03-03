@@ -1,10 +1,18 @@
-module SCP_TB;
+/* verilator lint_off NULLPORT */
+
+module SCP_TB(
+  `ifdef VERILATOR
+    input logic clk,
+  `endif
+);
 
   // Parameters
   parameter IMEM_DEPTH = 256; // Depth of the instruction memory
 
   // Signals
-  reg clk;
+  `ifndef VERILATOR
+    logic                   clk;
+  `endif;
   reg reset;
   reg [31:0] program_counter;
   
@@ -16,21 +24,25 @@ module SCP_TB;
   );
   
   // Clock generation
+  `ifndef VERILATOR
   always begin
     #5 clk = ~clk; // Toggle clock every 5 time units
   end
+  `endif
 
   // Testbench stimulus
   initial begin
+    `ifndef VERILATOR
     clk = 0;
+    `endif
     program_counter = 0; // Initialize program counter
     reset = 1;
     
-    #5 reset = 0;
+    @(posedge clk); 
+    reset = 0;
     // Stimulus loop
     repeat(34) begin
-      #10; // Wait for a few time units
-      
+      @(posedge clk); 
       // Check instruction fetched from memory
       $display("Program Counter = %d", program_counter);
       program_counter = program_counter + 1;
@@ -41,3 +53,5 @@ module SCP_TB;
   end
 
 endmodule
+
+/* verilator lint_on NULLPORT */
