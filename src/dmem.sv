@@ -1,4 +1,6 @@
 module DMEM (
+    input logic reset,
+    input logic clk,
     input logic MemRW, 
     input logic [31:0] Address, 
     input logic [31:0] WriteData, 
@@ -14,13 +16,14 @@ module DMEM (
     end
 
     // Write operation
-    always_ff @(posedge MemRW) begin
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            for (int i = 0; i < 1024; i++) begin
+                memory[i] = $random;
+            end    
+        end
         if (MemRW == 1)
             memory[Address] <= WriteData;
-    end
-
-    initial begin
-        $readmemh("dmem.txt", memory);
     end
 
 endmodule

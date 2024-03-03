@@ -22,7 +22,6 @@ module Datapath (
     logic [31:0] pc_counter;
     logic [31:0] nextpc;
     logic br_taken;
-    logic pc_updated;
 
     
     always_ff @(posedge clk) begin
@@ -40,7 +39,6 @@ module Datapath (
     //     .pc(pc_counter),
     //     .nextpc(nextpc),
     //     .br_taken(br_taken),
-    //     .pc_updated(pc_updated),
     //     .alu_result(ALUResult)
     // );
 
@@ -89,6 +87,8 @@ module Datapath (
         .result(ALUResult)
     );
     DMEM DM (
+        .clk(clk),
+        .reset(reset),
         .Address(ALUResult), 
         .WriteData(dataB), 
         .MemRW(MemRW), 
