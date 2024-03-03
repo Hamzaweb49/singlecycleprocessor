@@ -19,7 +19,7 @@ This project aims to provide a basic implementation of a single-cycle RISC-V pro
 
 ## Diagram
 
-![Design Diagram](docs/design.jpg)  
+![Design Diagram](docs/scp.PNG)  
 _Figure 1: Design Diagram_
 
 ## Modules
