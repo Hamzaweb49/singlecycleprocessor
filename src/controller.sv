@@ -64,35 +64,82 @@ module Controller (
     end
 
 
-    // Decode the ALU-select signal
+   // Decode the ALU-select signal
     always_comb begin
-        case(opcode)
-            7'b0110011, 7'b0010011, 7'b1100111, 7'b1100011, 7'b0100011, 7'b0000011, 7'b0011011, 7'b0111011, 7'b0010111, 7'b0110111, 7'b1101111:
-                case(funct3)
-                    3'b000:
-                        ALUSel = 4'b0000; // ADD, SUB
-                    3'b001:
-                        ALUSel = 4'b0001; // SLL
-                    3'b010:
-                        ALUSel = 4'b0010; // SLT
-                    3'b011:
-                        ALUSel = 4'b0011; // SLTU
-                    3'b100:
-                        ALUSel = 4'b0100; // XOR
-                    3'b101:
-                        if (funct7[5] == 0)
-                            ALUSel = 4'b0101; // SRL
-                        else
-                            ALUSel = 4'b0110; // SRA
-                    3'b110:
-                        ALUSel = 4'b0110; // OR
-                    3'b111:
-                        ALUSel = 4'b0111; // AND
-                    default:
-                        ALUSel = 4'b0000; // Default to ADD for unrecognized instructions
+        case (opcode)
+            7'b0110011: // R-type instructions
+                case ({instruction[31:25], instruction[14:12]})
+                    // ADD operation
+                    10'b0000000_000: ALUSel = 4'b0000;
+                    // SUB operation
+                    10'b0100000_000: ALUSel = 4'b0001;
+                    // AND operation
+                    10'b0000000_111: ALUSel = 4'b0010;
+                    // OR operation
+                    10'b0000000_110: ALUSel = 4'b0011;
+                    // XOR operation
+                    10'b0000000_100: ALUSel = 4'b0100;
+                    // SLL operation
+                    10'b0000000_001: ALUSel = 4'b0101;
+                    // SRL operation
+                    10'b0000000_101: ALUSel = 4'b0110;
+                    // SRA operation
+                    10'b0100000_101: ALUSel = 4'b0111;
+                    // SLT operation
+                    10'b0000000_010: ALUSel = 4'b1000;
+                    // SLTU operation
+                    10'b0000000_011: ALUSel = 4'b1001;
+                    default: ALUSel = 4'b0000; // Default value
                 endcase
-            default:
-                ALUSel = 4'b0000; // Default to ADD for non-R-type instructions
+            7'b0010011: // I-type instructions
+                case (instruction[14:12])
+                    // ADDI operation
+                    3'b000: ALUSel = 4'b0000;
+                    // ANDI operation
+                    3'b111: ALUSel = 4'b0010;
+                    // ORI operation
+                    3'b110: ALUSel = 4'b0011;
+                    // XORI operation
+                    3'b100: ALUSel = 4'b0100;
+                    // SLTI operation
+                     3'b010: ALUSel = 4'b1000;
+                    // SLTIU operation
+                     3'b011: ALUSel = 4'b1001;
+                    default: ALUSel = 4'b0000; // Default value
+                endcase
+            7'b0000011: // I-type instructions (load)
+                case (instruction[14:12])
+                    // load operation
+                    3'b010: ALUSel = 4'b0000;
+                    default: ALUSel = 4'b0000; // Default value
+                endcase
+            7'b0100011: // S-type instructions
+                case (instruction[14:12])
+                    // store operation
+                    3'b010: ALUSel = 4'b0000;
+                    default: ALUSel = 4'b0000; // Default value
+                endcase
+            7'b0110111: // U-type instructions
+                ALUSel = 4'b0000; // Default value
+            7'b1101111: // J-type instructions
+                ALUSel = 4'b0000; // Default value
+            7'b1100011: // B-type instructions
+                case (instruction[14:12])
+                    // BEQ operation
+                    3'b000: ALUSel = 4'b0111;
+                    // BNE operation
+                    3'b001: ALUSel = 4'b0111;
+                    // BLT operation
+                    3'b100: ALUSel = 4'b0111;
+                    // BGE operation
+                    3'b101: ALUSel = 4'b0111;
+                    // BLTU operation
+                    3'b110: ALUSel = 4'b0111;
+                    // BGEU operation
+                    3'b111: ALUSel = 4'b0111;
+                    default: ALUSel = 4'b0000; // Default value
+                endcase
+            default: ALUSel = 4'b0000; // Default value for non-R and non-I type instructions
         endcase
     end
 

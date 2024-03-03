@@ -9,7 +9,7 @@ module Datapath (
     input logic ImmSel,
     input logic MemRW,
     input logic ASel,
-    input logic [31:0] PC
+    input logic [31:0] pcounter
 );
 
     logic [31:0] instruction;
@@ -19,15 +19,33 @@ module Datapath (
     logic [31:0] Amux_output;
     logic [31:0] Wmux_output;
     logic [31:0] dmem_data;
+    logic [31:0] pc_counter;
+    logic [31:0] nextpc;
     logic br_taken;
+    logic pc_updated;
+
+    
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            pc_counter <= 32'b0;
+            nextpc <= 32'b0;
+        end
+        else begin
+            pc_counter <= pc_counter + 1;
+        end
+    end 
 
     // UpdatePC UPC (
-    //     .pc(PC),
+    //     .clk(clk),
+    //     .pc(pc_counter),
+    //     .nextpc(nextpc),
     //     .br_taken(br_taken),
-    //     .alu_result(alu_result)
+    //     .pc_updated(pc_updated),
+    //     .alu_result(ALUResult)
     // );
+
     IMemory IM (
-        .program_counter(PC), 
+        .program_counter(pc_counter), 
         .instruction(instruction)
     );
     RegisterFile RF (
@@ -53,7 +71,7 @@ module Datapath (
         .Y(Bmux_output)
     );
     Mux MX2(
-        .A(PC),
+        .A(pc_counter),
         .B(dataA),
         .sel(ASel),
         .Y(Amux_output)
@@ -79,7 +97,7 @@ module Datapath (
     Mux3x1 MX3 (
         .A(ALUResult), 
         .B(dmem_data),
-        .C(PC + 1), 
+        .C(pc_counter + 1), 
         .sel(WBSel), 
         .Y(Wmux_output)
     );

@@ -14,11 +14,9 @@ module SCP_TB(
     logic                   clk;
   `endif;
   reg reset;
-  reg [31:0] program_counter;
   
   // Instantiate IMemory module
   SingleCycleProcessor  SCP (
-    .pcounter(program_counter),
     .clk(clk),
     .reset(reset)
   );
@@ -35,7 +33,6 @@ module SCP_TB(
     `ifndef VERILATOR
     clk = 0;
     `endif
-    program_counter = 0; // Initialize program counter
     reset = 1;
     
     @(posedge clk); 
@@ -43,9 +40,6 @@ module SCP_TB(
     // Stimulus loop
     repeat(34) begin
       @(posedge clk); 
-      // Check instruction fetched from memory
-      $display("Program Counter = %d", program_counter);
-      program_counter = program_counter + 1;
     end
     
     // End simulation
