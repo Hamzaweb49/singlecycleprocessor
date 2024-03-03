@@ -5,10 +5,18 @@ module Controller (
     output logic ImmSel,
     output logic RegWEn,
     output logic Bsel,
+    output logic [2:0] branch_type,
     output logic [3:0] ALUSel,
     output logic MemRW,
-    output logic WBSel
+    output logic [1:0] WBSel
 );
+
+    localparam [6:0] R_TYPE = 7'b0110011;
+    localparam [6:0] I_TYPE = 7'b0010011;
+    localparam [6:0] S_TYPE = 7'b0100011;
+    localparam [6:0] B_TYPE = 7'b1100011;
+    localparam [6:0] U_TYPE = 7'b0110111;
+    localparam [6:0] J_TYPE = 7'b1101111;
 
     // Decode the opcode
     logic [6:0] opcode;
@@ -24,6 +32,8 @@ module Controller (
     assign func3  = instruction[14:12];
 
     assign func7 = instruction[31:25];
+
+    assign branch_type = instruction[6:0] == 7'b1100011 ? instruction[14:12] : 3'b0;
 
     // Decode the immediate type instructions
     assign ImmSel = (opcode == 7'b0000011 || opcode == 7'b0010011 || opcode == 7'b1100111 || opcode == 7'b1100011 || opcode == 7'b0000011);
@@ -80,10 +90,12 @@ module Controller (
     // Decode the write-back select signal
     always_comb begin
         case(opcode)
-            7'b0110011, 7'b0010011, 7'b1100111, 7'b1100011, 7'b0100011, 7'b0000011, 7'b0011011, 7'b0111011, 7'b0010111, 7'b0110111, 7'b1101111:
-                WBSel = 1'b0; // ALU output
+            7'b0110011, 7'b0010011, 7'b1100111, 7'b1100011, 7'b0100011, 7'b0000011, 7'b0011011, 7'b0111011, 7'b0010111, 7'b0110111:
+                WBSel = 2'b00; // ALU output
             7'b0000011, 7'b0010011, 7'b0100011:
-                WBSel = 1'b1; // Memory output
+                WBSel = 1'b01; // Memory output
+            7'b1101111:
+                WBSel = 1'b10;
             default:
                 WBSel = 1'b0; // Default to zero for non-write instructions
         endcase

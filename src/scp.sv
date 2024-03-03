@@ -5,12 +5,14 @@ module SingleCycleProcessor (
 );
 
     logic RegWEn, MemRW, ImmSel;
-    logic  BSel, WBSel;
+    logic  BSel;
+    logic [1:0] WBSel; 
     logic [3:0] ALUSel;
+    logic [2:0] branch_type;
 
 
-    Datapath DP (.clk(clk), .reset(reset), .ImmSel(ImmSel), .WBSel(WBSel), .RegWEn(RegWEn), .PC(pcounter), .ALUSel(ALUSel), .MemRW(MemRW), .BSel(BSel));
-    Controller C (.clk(clk), .reset(reset), .instruction(DP.instruction), .ImmSel(ImmSel), .RegWEn(RegWEn), .ALUSel(ALUSel), .MemRW(MemRW), .Bsel(BSel), .WBSel(WBSel));
+    Datapath DP (.clk(clk), .reset(reset), .ImmSel(ImmSel), .WBSel(WBSel), .branch_type(branch_type), .RegWEn(RegWEn), .PC(pcounter), .ALUSel(ALUSel), .MemRW(MemRW), .BSel(BSel));
+    Controller C (.clk(clk), .reset(reset), .instruction(DP.instruction), .ImmSel(ImmSel), .RegWEn(RegWEn), .branch_type(branch_type), .ALUSel(ALUSel), .MemRW(MemRW), .Bsel(BSel), .WBSel(WBSel));
 
 
 endmodule
