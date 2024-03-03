@@ -16,13 +16,16 @@ SIM_SRC_VSIM = src/scp.sv \
 					src/mux.sv \
 					src/immGen.sv \
 					src/dmem.sv \
+					src/Mux3x1.sv \
+					src/updatePC.sv \
+					src/conditionalBranch.sv \
 					test/scp_tb.sv
 
 
 COMP_OPTS_SV := --incr --relax
 
-TB_TOP = tb_SequentialMultiplier
-MODULE = tb_SequentialMultiplier
+TB_TOP = scp_tb
+MODULE = scp_tb
 
 
 # Default target
@@ -47,7 +50,7 @@ ifdef TOOL
 ifeq ($(TOOL),vsim)
 	@echo "Running VSIM simulation..."
 	vlog $(SIM_SRC_VSIM)
-	vsim tb_SequentialMultiplier
+	vsim scp_tb
 
 else
 	@echo "Invalid TOOL specified. Please use 'vsim' or 'verilator'."

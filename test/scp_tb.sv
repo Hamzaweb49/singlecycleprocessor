@@ -33,6 +33,7 @@ module SCP_TB;
       
       // Check instruction fetched from memory
       $display("Program Counter = %d", program_counter);
+      program_counter = program_counter + 1;
     end
     
     // End simulation

@@ -8,22 +8,24 @@ module Datapath (
     input logic RegWEn,
     input logic ImmSel,
     input logic MemRW,
-    output logic [31:0] PC
+    input logic ASel,
+    input logic [31:0] PC
 );
 
     logic [31:0] instruction;
     logic [31:0] dataA, dataB, immediate;
     logic [31:0] ALUResult;
     logic [31:0] Bmux_output;
+    logic [31:0] Amux_output;
     logic [31:0] Wmux_output;
     logic [31:0] dmem_data;
     logic br_taken;
 
-    UpdatePC UPC (
-        .pc(PC),
-        .br_taken(br_taken),
-        .alu_result(alu_result)
-    );
+    // UpdatePC UPC (
+    //     .pc(PC),
+    //     .br_taken(br_taken),
+    //     .alu_result(alu_result)
+    // );
     IMemory IM (
         .program_counter(PC), 
         .instruction(instruction)

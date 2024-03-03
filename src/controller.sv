@@ -8,7 +8,8 @@ module Controller (
     output logic [2:0] branch_type,
     output logic [3:0] ALUSel,
     output logic MemRW,
-    output logic [1:0] WBSel
+    output logic [1:0] WBSel,
+    output logic Asel
 );
 
     localparam [6:0] R_TYPE = 7'b0110011;
@@ -42,6 +43,16 @@ module Controller (
     assign RegWEn = (opcode == 7'b0110011 || opcode == 7'b0010011 || opcode == 7'b0000011 || opcode == 7'b1100111 || opcode == 7'b1100011 || opcode == 7'b0100011 || opcode == 7'b0001111 || opcode == 7'b0010111 || opcode == 7'b1101111 || opcode == 7'b0110111);
 
 
+    // Decode the A-select signal
+    always_comb begin
+        case(opcode)
+            7'b1100111:
+                Asel = 1'b0; // PC
+            default:
+                Asel = 1'b0; // rs1
+        endcase
+    end
+
     // Decode the B-select signal
     always_comb begin
         case(opcode)
@@ -51,6 +62,7 @@ module Controller (
                 Bsel = 1'b0; // rs2
         endcase
     end
+
 
     // Decode the ALU-select signal
     always_comb begin
@@ -93,11 +105,11 @@ module Controller (
             7'b0110011, 7'b0010011, 7'b1100111, 7'b1100011, 7'b0100011, 7'b0000011, 7'b0011011, 7'b0111011, 7'b0010111, 7'b0110111:
                 WBSel = 2'b00; // ALU output
             7'b0000011, 7'b0010011, 7'b0100011:
-                WBSel = 1'b01; // Memory output
+                WBSel = 2'b01; // Memory output
             7'b1101111:
-                WBSel = 1'b10;
+                WBSel = 2'b10;
             default:
-                WBSel = 1'b0; // Default to zero for non-write instructions
+                WBSel = 2'b0; // Default to zero for non-write instructions
         endcase
     end
 
